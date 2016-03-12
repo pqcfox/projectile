@@ -1,0 +1,70 @@
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{parskip}
+
+\title{Projectile Lab: Deviations from Kinematics}
+\author{Eben Rogers \and Chandler Watson}
+
+\begin{document}
+
+\maketitle
+
+\section{Goal}
+
+The goal of this project was to develop a kinematic model to describe the range of a projectile launched from a constant height at any given angle and velocity. This kinematic model was compared to real-world data and the deviations between theoretical and experimental were statistically modeled and discussed.
+
+\section{Kinematic Model}
+
+The motion of our projectile was modeled in two dimensions assuming constant gravational acceleration. Figure \ref{fig:kinematic} shows the motion of the projectile as depicted by this model.
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}
+    \draw [thick, dashed] (0, 2) parabola bend (3, 3) ({sqrt(27) + 3}, 0);
+    \draw [thick, ->] (0, 0) -- node[right] {h} (0, 1.95);
+    \draw [thick, ->] (0, 0) -- node[above] {R} ({sqrt(27) + 2.95}, 0);
+    \draw [thick, ->] (3, 3) -- node[right] {g} (3, 1.5);
+    \draw [thick, ->] (3, 3) -- node[above] {v} (5, 3);
+    \draw [thick] (0, 2) -- node[above, pos = 0.7] {$\theta$} (1.25, 2);
+  \end{tikzpicture}
+  \caption{Diagram of kinematic model}
+  \label{fig:kinematic}
+\end{figure}
+
+Over time, the y-coordinate of the projectile can be described as
+
+\begin{equation} \label{eq:yvel}
+  y = y_0 + {v_y}_0 t + \frac{1}{2}gt^2.
+\end{equation}
+
+Setting $y = 0$ and using the quadratic equation, equation \ref{eq:yvel} becomes
+
+\begin{equation} \label{eq:sol}
+  t_{land} = \frac{-{v_y}_0 \pm \sqrt{{v_y}_0^2-2gy_0}}{g}.
+\end{equation}
+
+Now, the analogue of equation \ref{eq:yvel} for the x-coordinate of the projectile is
+
+\begin{equation} \label{eq:xvel}
+  x = x_0 + {x_y}_0 t
+\end{equation}
+
+as there is no acceleration in the x direction. Finally, plugging equation \ref{eq:sol} into equation \ref{eq:xvel}, we obtain
+
+\begin{equation} \label{eq:xsol}
+  x_{land} = x_0 + \frac{t}{g}\Bigg(-{v_y}_0 \pm \sqrt{{v_y}_0^2-2gh}\Bigg).
+\end{equation}
+
+Tidying up, we will let $R = x_{land} - x_0$ and ${v_y}_0 = v_0 \sin{\theta}$. This yields the final equation,
+
+\begin{equation} \label{eq:final}
+  R = \frac{t}{g}\Bigg(-v_0 \sin{\theta} \pm \sqrt{(v_0 \sin{\theta})^2-2gh}\Bigg).
+\end{equation}
+
+\section{Methods}
+
+\section{Data}
+
+\section{Analysis}
+
+\end{document}
