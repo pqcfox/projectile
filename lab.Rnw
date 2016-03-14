@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{tikz}
 \usepackage{parskip}
+\usepackage{gensymb}
 
 \title{Projectile Lab: Deviations from Kinematics}
 \author{Eben Rogers \and Chandler Watson}
@@ -21,10 +22,10 @@ The motion of our projectile was modeled in two dimensions assuming constant gra
   \centering
   \begin{tikzpicture}
     \draw [thick, dashed] (0, 2) parabola bend (3, 3) ({sqrt(27) + 3}, 0);
-    \draw [thick, ->] (0, 0) -- node[right] {h} (0, 1.95);
-    \draw [thick, ->] (0, 0) -- node[above] {R} ({sqrt(27) + 2.95}, 0);
-    \draw [thick, ->] (3, 3) -- node[right] {g} (3, 1.5);
-    \draw [thick, ->] (3, 3) -- node[above] {v} (5, 3);
+    \draw [thick, ->] (0, 0) -- node[right] {$y_0$} (0, 1.95);
+    \draw [thick, ->] (0, 0) -- node[above] {$\Delta x$} ({sqrt(27) + 2.95}, 0);
+    \draw [thick, ->] (3, 3) -- node[right] {$g$} (3, 1.5);
+    \draw [thick, ->] (3, 3) -- node[above] {$v$} (5, 3);
     \draw [thick] (0, 2) -- node[above, pos = 0.7] {$\theta$} (1.25, 2);
   \end{tikzpicture}
   \caption{Diagram of kinematic model}
@@ -52,22 +53,38 @@ Now, the analogue of equation \ref{eq:yvel} for the x-coordinate of the projecti
 As there is no acceleration in the x direction. Finally, plugging equation \ref{eq:sol} into equation \ref{eq:xvel}, we obtain
 
 \begin{equation} \label{eq:xsol}
-  x_{land} = x_0 + \frac{t}{g}\Bigg(-{v_y}_0 \pm \sqrt{{v_y}_0^2-2gh}\Bigg).
+  x_{land} = x_0 + \frac{v_{x_0}}{g}\Bigg(-{v_y}_0 \pm \sqrt{{v_y}_0^2-2gy_0}\Bigg).
 \end{equation}
 
-Tidying up, we will let $\Delta x = x_{land} - x_0$ and ${v_y}_0 = v_0 \sin{\theta}$. This yields the final equation,
+Tidying up, we will let $\Delta x = x_{land} - x_0$, ${v_x}_0 = v_0 \cos{\theta}$, ${v_y}_0 = v_0 \sin{\theta}$. This yields the final equation,
 
 \begin{equation} \label{eq:final}
-  \Delta x = \frac{t}{g}\Bigg(-v_0 \sin{\theta} \pm \sqrt{(v_0 \sin{\theta})^2-2gh}\Bigg).
+  \Delta x = \frac{v_0 \cos{\theta}}{g}\Bigg(-v_0 \sin{\theta} \pm \sqrt{(v_0 \sin{\theta})^2-2gy_0}\Bigg).
 \end{equation}
 
 \section{Methods}
 
-A basic ramp was set up with the starting end being higher than the launch end. The method of propulsion for the projectile being launced (a metal ball) was the conversion of potential energy to kinetic energy through the use of gravity. The projectile started at varying heights from 75cm to 55cm in 5cm increments from the lowest point of the launch ramp (aka the surface of the table) as well as being launced at several different angles from 0 degrees to 40 degrees in 10 degree increments. The horizontal distance from the 75cm meter starting point to the lowest point of the ramp and end of the ramp were 97cm and 134cm respectively. Furthermore, the horizontal distance from the launch point to the ground was 91cm with 3-4cm being added for every 10 degree additional increment.
+A basic ramp was set up with the starting end being higher than the launch end. The method of propulsion for the projectile being launched (a metal ball) was the conversion of potential energy to kinetic energy through the use of gravity. The projectile started at varying heights from 75 cm to 55 cm in 5 cm increments measured from the lowest point of the launch ramp (the surface of the table) as well as being launced at several different angles from $0 \degree$ to $40 \degree$ in $10 \degree$ increments. The horizontal distance from the 75 cm meter starting point to the lowest point of the ramp and end of the ramp were 97 cm and 134 cm respectively. Furthermore, the horizontal distance from the launch point to the ground was 91 cm with 3 to 4 cm being added for every $10 \degree$ additional increment.
 
-The data collection tested two variables: starting height and ramp launch angle. Five different settings were chosen for each variable as well as three trials for each testing run, totalling 75 total data points collected. The three trials were chosen to make sure outliers would not affect the data as much as they would have with only one trial. The data collection started with a 0 degree ramp while cycling through the five different starting heights (three trials each time). This process was repeated for the subsequent 4 10 degree increments. The first dependent variable measured was the impact location of the projectile on the ground measured in centimeters. This data was measured through the use of carbon paper laid out on the floor so that when the projectile landed on it, it would made a mark on the floor below the carbon paper so that the impact locations could be measured using a measuring tape right thereafter (Note: the launch point of the projectile was considered the origin with respect to the horizontal axis when measuring horizontal distance). The second dependent variable measured was takeoff velocity measured by two photogates placed a set distance apart (2cm). The collection of this information was relatively straightforward as a program called LoggerPro calculated the corresponding the velocities based off of the time between the two photogate activations by the projectile and the distance between the two gates which was input by the data collector.
+The data collection tested two variables: starting height and ramp launch angle. Five different settings were chosen for each variable as well as three trials for each testing run, totalling 75 total data points collected. The three trials were chosen to make sure outliers would not affect the data as much as they would have with only one trial. The data collection started with a $0 \degree$ ramp while cycling through the five different starting heights (three trials each time). This process was repeated for the subsequent four $10 \degree$ increments. The first dependent variable measured was the impact location of the projectile on the ground measured in centimeters. This data was measured through the use of carbon paper laid out on the floor so that when the projectile landed on it, it would made a mark on the floor below the carbon paper so that the impact locations could be measured using a measuring tape right thereafter (Note: the launch point of the projectile was considered the origin with respect to the horizontal axis when measuring horizontal distance). The second dependent variable measured was takeoff velocity measured by two photogates placed a set distance apart (2 cm). The collection of this information was relatively straightforward as a program called LoggerPro calculated the corresponding the velocities based off of the time between the two photogate activations by the projectile and the distance between the two gates which was input by the data collector.
 
 \section{Data}
+
+<<plot, echo=FALSE>>=
+library(ggplot2)
+
+proj <- read.csv('proj.csv')
+launch <- read.csv('launch.csv')
+
+proj$angle = as.factor(proj$angle)
+
+print(ggplot(proj, aes(velocity, range)) + 
+geom_point(aes(color = angle)) + 
+facet_grid(angle ~ .) + 
+xlab('Velocity of Projectile (m/s)') + 
+ylab('Range of Projectile (m)') + 
+theme(legend.position = 'top'))
+@
 
 \section{Analysis}
 
