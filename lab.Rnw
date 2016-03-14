@@ -55,10 +55,10 @@ As there is no acceleration in the x direction. Finally, plugging equation \ref{
   x_{land} = x_0 + \frac{t}{g}\Bigg(-{v_y}_0 \pm \sqrt{{v_y}_0^2-2gh}\Bigg).
 \end{equation}
 
-Tidying up, we will let $R = x_{land} - x_0$ and ${v_y}_0 = v_0 \sin{\theta}$. This yields the final equation,
+Tidying up, we will let $\Delta x = x_{land} - x_0$ and ${v_y}_0 = v_0 \sin{\theta}$. This yields the final equation,
 
 \begin{equation} \label{eq:final}
-  R = \frac{t}{g}\Bigg(-v_0 \sin{\theta} \pm \sqrt{(v_0 \sin{\theta})^2-2gh}\Bigg).
+  \Delta x = \frac{t}{g}\Bigg(-v_0 \sin{\theta} \pm \sqrt{(v_0 \sin{\theta})^2-2gh}\Bigg).
 \end{equation}
 
 \section{Methods}
