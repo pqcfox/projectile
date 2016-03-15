@@ -2,11 +2,44 @@
 \usepackage{tikz}
 \usepackage{parskip}
 \usepackage{gensymb}
+\usepackage{multicol}
 
 \title{Projectile Lab: Deviations from Kinematics}
 \author{Eben Rogers \and Chandler Watson}
 
 \begin{document}
+
+<<include=FALSE>>=
+library(ggplot2)
+library(plyr)
+library(xtable)
+
+data <- read.csv('data.csv')
+angles <- read.csv('angles.csv')
+
+range_hat <- function (v, t, h) {
+  g <- 9.8
+  inside <- sqrt((v * sin(t)) ^ 2 + 2 * g * h)
+  v * cos(t) / g * (v * sin(t) + inside)
+}
+
+data <- join(data, angles, by='angle')
+data$theta <- data$angle * pi / 180
+data$height <- data$height / 100
+data$range <- data$range / 100
+data$pred <- with(data, range_hat(velocity, theta, y0))
+data$error <- with(data, abs(range - pred))
+
+means <- aggregate(error ~ angle, data, mean)
+sds <- aggregate(error ~ angle, data, sd)
+errors <- join(means, sds, by='angle')
+colnames(errors) <- c('Angle (deg)', 'Error (m)', 'SD (m)')
+
+plot_data = data
+plot_data$angle <- as.factor(plot_data$angle)
+table_data = data[,1:4]
+colnames(table_data) <- c('Drop', 'Angle', 'Takeoff', 'Range')
+@
 
 \maketitle
 
@@ -56,36 +89,87 @@ As there is no acceleration in the x direction. Finally, plugging equation \ref{
   x_{land} = x_0 + \frac{v_{x_0}}{g}\Bigg(-{v_y}_0 \pm \sqrt{{v_y}_0^2-2gy_0}\Bigg).
 \end{equation}
 
-Tidying up, we will let $\Delta x = x_{land} - x_0$, ${v_x}_0 = v_0 \cos{\theta}$, ${v_y}_0 = v_0 \sin{\theta}$. This yields the final equation,
+Tidying up, we will let $\Delta x = x_{land} - x_0$, ${v_x}_0 = v_0 \cos{\theta}$, ${v_y}_0 = v_0 \sin{\theta}$. Selecting only the positive root of the quadratic equation yields the final
 
 \begin{equation} \label{eq:final}
-  \Delta x = \frac{v_0 \cos{\theta}}{g}\Bigg(-v_0 \sin{\theta} \pm \sqrt{(v_0 \sin{\theta})^2-2gy_0}\Bigg).
+  \Delta x = -\frac{v_0 \cos{\theta}}{g}\Bigg(v_0 \sin{\theta} + \sqrt{(v_0 \sin{\theta})^2-2gy_0}\Bigg).
 \end{equation}
 
 \section{Methods}
 
-A basic ramp was set up with the starting end being higher than the launch end. The method of propulsion for the projectile being launched (a metal ball) was the conversion of potential energy to kinetic energy through the use of gravity. The projectile started at varying heights from 75 cm to 55 cm in 5 cm increments measured from the lowest point of the launch ramp (the surface of the table) as well as being launced at several different angles from $0 \degree$ to $40 \degree$ in $10 \degree$ increments. The horizontal distance from the 75 cm meter starting point to the lowest point of the ramp and end of the ramp were 97 cm and 134 cm respectively. Furthermore, the horizontal distance from the launch point to the ground was 91 cm with 3 to 4 cm being added for every $10 \degree$ additional increment.
+A basic ramp was set up with the starting end being higher than the launch end. Gravatational propulsion launched a small metal ball off the launch end. The projectile started at varying heights - from 55 cm to 75 cm in 5 cm increments - measured from the lowest point of the launch ramp. For each of these heights, the ball was launched at  angles from $0 \degree$ to $40 \degree$ in $10 \degree$ increments. The horizontal distance from the 75 cm meter starting point to the lowest point of the ramp and end of the ramp were 97 cm and 134 cm respectively. Furthermore, the horizontal distance from the launch point to the ground was 91 cm with approximately 3 cm being added for every $10 \degree$ additional increment.
 
-The data collection tested two variables: starting height and ramp launch angle. Five different settings were chosen for each variable as well as three trials for each testing run, totalling 75 total data points collected. The three trials were chosen to make sure outliers would not affect the data as much as they would have with only one trial. The data collection started with a $0 \degree$ ramp while cycling through the five different starting heights (three trials each time). This process was repeated for the subsequent four $10 \degree$ increments. The first dependent variable measured was the impact location of the projectile on the ground measured in centimeters. This data was measured through the use of carbon paper laid out on the floor so that when the projectile landed on it, it would made a mark on the floor below the carbon paper so that the impact locations could be measured using a measuring tape right thereafter (Note: the launch point of the projectile was considered the origin with respect to the horizontal axis when measuring horizontal distance). The second dependent variable measured was takeoff velocity measured by two photogates placed a set distance apart (2 cm). The collection of this information was relatively straightforward as a program called LoggerPro calculated the corresponding the velocities based off of the time between the two photogate activations by the projectile and the distance between the two gates which was input by the data collector.
+During data collection, the metal ball's range was recorded for each drop height and angle. The five different values for each variable times three three trials totaled 75 individual data points. The data collection started with a $0 \degree$ ramp cycling through the five different starting heights. This process was repeated for the subsequent four $10 \degree$ increments. The impact location of the metal ball was measured with a combination of three sheets of carbon paper and a measuring tape. In order to compare these results to the kinematic model, takeoff velocity was measured by two photogates placed a fixed 2cm apart. The collection of this information was relatively straightforward as LoggerPro automatically calculated the corresponding velocities from the time interval betwen the two photogate activations.
 
-\section{Data}
+\section{Plot}
 
-<<plot, echo=FALSE>>=
-library(ggplot2)
-
-proj <- read.csv('proj.csv')
-launch <- read.csv('launch.csv')
-
-proj$angle = as.factor(proj$angle)
-
-print(ggplot(proj, aes(velocity, range)) + 
-geom_point(aes(color = angle)) + 
-facet_grid(angle ~ .) + 
-xlab('Velocity of Projectile (m/s)') + 
-ylab('Range of Projectile (m)') + 
-theme(legend.position = 'top'))
-@
+\begin{figure}[h!]
+  <<plot, echo=FALSE>>=
+  gg <- ggplot(plot_data, aes(velocity, range)) + 
+  geom_point(aes(color = angle)) + 
+  geom_line(data=plot_data, aes(velocity, pred, color = angle)) +
+  facet_grid(angle ~ .) +
+  xlab('Velocity of Projectile (m/s)') + 
+  ylab('Range of Projectile (m)') + 
+  theme(legend.position = 'top')
+  
+  gg$labels$colour <- 'Angle (deg)'
+  print(gg)
+  @
+  \caption{A plot of takeoff velocity vs. range for various angles. Experimentally observed data are shown as points, and theoretical valuesa are shown as lines.}
+\end{figure}
 
 \section{Analysis}
+
+One immediate observation is that, regardless of the angle, the range appeared to be linear with the takeoff velocity. Indeed, substituting $\theta = 45 \degree$ and $y_0 = 1 m$  into equation \ref{eq:final}, we obtain
+
+\begin{equation}
+  \Delta x = 0.0510 v_0 \sqrt{v_0^2 + 39.2}
+\end{equation}
+
+which is clearly quadratic in the limit. A plot of this function is shown in Figure \ref{fig:approx}, demonstrating this behavior.
+
+\begin{figure}[h!]
+  <<approx_plot, echo=FALSE, fig.height=3>>=
+  test_fun <- function(v) range_hat(v, pi/4, 1.0)
+  ggplot(data.frame(x=c(0, 100)), aes(x)) + 
+  stat_function(fun = test_fun) + 
+  xlab('Velocity of Projectile (m/s)') + 
+  ylab('Range of Projectile (m)')
+  @
+  \label{fig:approx}
+  \caption{Theoretical of a projectile launched at $45 \degree$ from a height of 1 m}
+\end{figure}
+
+Furthermore, there appeared to be a constant error between the theoretical and actual range of the projectile. Table \ref{tab:error} gives the average error and standard deviation of error for each launch angle.
+
+<<error_tab, echo=FALSE, results='asis'>>=
+print(xtable(errors, align = 'cccc', label='tab:error', caption = 'A table showing mean error and standard devation for velocities measured from different launch angles to three decimal places', digits = 3), include.rownames = FALSE)
+@
+
+This substantial difference cannot be simply attributed to air resistance - the metal ball had substantial inertia and certainly would not have lost 30 cm by that cause. Most likely, the distance between the photogates wasn't measured to a high enough degree of precision, causing the takeoff velocity to be miscalculated consistently by a roughly constant factor. Furthermore, the rough estimation of height increase per degree incline could have contributed, but certainly only a few centimeters of height at the most.
+
+Final observations include that the error was roughly constant for each angle, but the standard devation of velocity within each angle was near zero. This indicates a precise yet inaccurate experimental setup. Further work could improve these inaccuracies (likely by focusing on finer calibration of the photogates) or measure on a larger scale how hyperbolic geometries improve errors in models that assume constant downward acceleration.
+
+\section{Appendix: Collected Data}
+
+\begin{table}[ht!]
+  \begin{minipage}{.5\textwidth}
+    \centering
+    <<first_app, echo=FALSE, results='asis', out.width='4cm', out.height='4cm', fig.show='hold'>>=
+    print(xtable(table_data[1:37,1:4], align = 'ccccc', digits = 3), include.rownames = FALSE, floating = FALSE)
+    @
+  \end{minipage}
+  \hspace{0.7cm}
+  \begin{minipage}{.5\textwidth}
+    \centering
+    <<second_app, echo=FALSE, results='asis', out.width='4cm', out.height='4cm', fig.show='hold'>>=
+    print(xtable(table_data[38:74,1:4], align = "ccccc", digits = 3), include.rownames = FALSE, floating = FALSE)
+    @
+  \end{minipage}
+\end{table}
+
+\centering
+(units are meters, degrees, meters per second, and meters, respectively)
 
 \end{document}
